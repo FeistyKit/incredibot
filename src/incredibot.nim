@@ -1,4 +1,7 @@
-import os, system
+import os, system, dimscord, asyncdispatch, times, options, regex
+
+proc subredditlink(s: openArray[string]): string =
+  discard
 
 when isMainModule:
   if paramCount() < 1:
@@ -9,4 +12,16 @@ when isMainModule:
     quit(1)
 
   let contents = readFile(paramStr(1))
-  echo "Contents: ", contents
+
+  let discord = newDiscordClient(contents)
+
+const handlers = [(re("\\s\\/?(r\\/\\w*)"), subredditlink)]
+
+proc messageCreate(s: Shard, m: Message) {.event(discord).} =
+  if m.author.bot: return
+  for (reg, callback) in handlers:
+    let t = m.content.matches(reg)
+    if len(t) > 0:
+      discard await discord.api.sendMessage(m.channel_id, callback(matches))
+
+

@@ -10,4 +10,4 @@ bin           = @["incredibot"]
 
 # Dependencies
 
-requires "nim >= 1.6.0", "dimscord >= 1.3.0"
+requires "nim >= 1.6.0", "dimscord >= 1.3.0", "regex >= 0.19.0"
