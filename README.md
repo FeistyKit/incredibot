@@ -7,7 +7,7 @@ There is no real rhyme or reasoning behind the features that I implement; I just
 ```bash
 $ git clone "https://www.github.com/FeistyKit/incredibot.git"
 $ cd incredibot
-$ nimble build -d:ssl
+$ cabal build
 $ ./incredibot <path to file that contains discord authentication token> &
 ```
-Depends on OpenSSL.
+Depends on OpenSSL and requires the [ghc](https://www.haskell.org/ghc/) to run.
