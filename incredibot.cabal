@@ -14,7 +14,7 @@ executable incredibot
 
     hs-source-dirs:   app
     default-language: Haskell2010
-    ghc-options:      -threaded -dynamic
+    ghc-options:      -threaded -static -optc-static -optl-static A.hs -fvia-C -optl-pthread
     build-depends:    base ^>=4.15.0.0
                     , text
                     , unliftio
