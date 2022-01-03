@@ -3,3 +3,8 @@ authentication
 dist-newstyle
 
 .stack-work
+
+
+# Added by cargo
+
+/target
