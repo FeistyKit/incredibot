@@ -1,4 +1,4 @@
-use std::{env, fs::read_to_string, collections::HashMap};
+use std::{env, fs::read_to_string, collections::HashMap, time::Instant};
 
 use fancy_regex::Regex;
 use serenity::{prelude::{RwLock, EventHandler}, async_trait, model::{channel::Message, gateway::Ready}, client::Context, Client, framework::StandardFramework};
@@ -49,8 +49,13 @@ impl Default for Handler {
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if !from_bot(&msg) {
+            let inst = Instant::now();
             if let Some(input) = msg.content.strip_prefix(&*self.prefix.read().await) {
-                for (com, act) in self.strong_commands.read().await.iter() {
+                println!("Took {} seconds to access prefix!", inst.elapsed().as_secs());
+                let inst = Instant::now();
+                let coms = self.strong_commands.read().await;
+                println!("Took {} seconds to access strong commands!", inst.elapsed().as_secs());
+                for (com, act) in coms.iter() {
                     if let Some(_arg) = input.strip_prefix(com.as_str()) {
                         match act {
                             StrongAction::Print(s) => {
@@ -69,7 +74,10 @@ impl EventHandler for Handler {
                     }
                 }
             }
-            for (reg, act) in self.weak_commands.read().await.iter() {
+            let inst = Instant::now();
+            let weaks = self.weak_commands.read().await;
+            println!("Took {} seconds to access weak commands!", inst.elapsed().as_secs());
+            for (reg, act) in weaks.iter() {
                 for m in reg.captures_iter(&msg.content) {
                     if let Ok(m) = m {
                         match act {
