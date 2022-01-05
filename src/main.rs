@@ -2,6 +2,8 @@ use std::{env, fs::read_to_string, collections::HashMap, time::Instant};
 
 use fancy_regex::Regex;
 use serenity::{prelude::{RwLock, EventHandler}, async_trait, model::{channel::Message, gateway::Ready}, client::Context, Client, framework::StandardFramework};
+use log::{debug, error};
+use simple_logger::SimpleLogger;
 
 type Ret<T> = Result<T, String>;
 type RwList<K, V> = RwLock<Vec<(K, V)>>;
@@ -51,10 +53,10 @@ impl EventHandler for Handler {
         if !from_bot(&msg) {
             let inst = Instant::now();
             if let Some(input) = msg.content.strip_prefix(&*self.prefix.read().await) {
-                println!("Took {} seconds to access prefix!", inst.elapsed().as_secs());
+                debug!("Took {} miliseconds to access prefix!", inst.elapsed().as_millis());
                 let inst = Instant::now();
                 let coms = self.strong_commands.read().await;
-                println!("Took {} seconds to access strong commands!", inst.elapsed().as_secs());
+                debug!("Took {} miliseconds to access strong commands!", inst.elapsed().as_millis());
                 for (com, act) in coms.iter() {
                     if let Some(_arg) = input.strip_prefix(com.as_str()) {
                         match act {
@@ -76,7 +78,7 @@ impl EventHandler for Handler {
             }
             let inst = Instant::now();
             let weaks = self.weak_commands.read().await;
-            println!("Took {} seconds to access weak commands!", inst.elapsed().as_secs());
+            debug!("Took {} miliseconds to access weak commands!", inst.elapsed().as_millis());
             for (reg, act) in weaks.iter() {
                 for m in reg.captures_iter(&msg.content) {
                     if let Ok(m) = m {
@@ -97,7 +99,7 @@ impl EventHandler for Handler {
 async fn say_resolved(src: &Message, ctx: &Context, to_send: &str) {
     // Stolen from https://github.com/serenity-rs/serenity/blob/7b89775858d92a1c8be05f213b92fbe72b083980/examples/e01_basic_ping_bot/src/main.rs#L24
     if let Err(why) = src.channel_id.say(&ctx.http, to_send).await {
-        println!("Error sending message: {:?}", why);
+        error!("Error sending message: {:?}", why);
     }
 }
 
@@ -107,11 +109,12 @@ fn from_bot(m: &Message) -> bool {
 
 #[tokio::main]
 async fn main() -> Ret<()> {
+    SimpleLogger::new().with_level(log::LevelFilter::Debug).init().unwrap();
     let token = get_auth_token()?;
     let handler = Handler::default();
     let mut client = Client::builder(&token).event_handler(handler).framework(StandardFramework::new()).await.expect("Err creating client"); // Stolen from https://github.com/serenity-rs/serenity/blob/7b89775858d92a1c8be05f213b92fbe72b083980/examples/e01_basic_ping_bot/src/main.rs#L49
     if let Err(why) = client.start().await { // Stolen from https://github.com/serenity-rs/serenity/blob/7b89775858d92a1c8be05f213b92fbe72b083980/examples/e01_basic_ping_bot/src/main.rs#L56
-        println!("Client error: {:?}", why);
+        error!("Client error: {:?}", why);
     }
     Ok(())
 }

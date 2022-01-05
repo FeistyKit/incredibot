@@ -8,3 +8,5 @@ dist-newstyle
 # Added by cargo
 
 /target
+
+out.txt
