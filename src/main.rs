@@ -49,6 +49,7 @@ impl Default for Handler {
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
+        let t = Instant::now();
         if !from_bot(&msg) {
             if let Some(input) = msg.content.strip_prefix(&*self.prefix.read().await) {
                 for (com, act) in self.strong_commands.read().await.iter() {
@@ -84,6 +85,7 @@ impl EventHandler for Handler {
                 }
             }
         }
+        println!("{} millis elapsed in message handling", t.elapsed().as_millis());
     }
 }
 
@@ -93,7 +95,7 @@ async fn say_resolved(src: &Message, ctx: &Context, to_send: &str) {
     if let Err(why) = src.channel_id.say(&ctx.http, to_send).await {
         println!("Error sending message: {:?}", why);
     }
-    println!("{} millis elapsed", t.elapsed().as_millis());
+    println!("{} millis elapsed while sending the message", t.elapsed().as_millis());
 }
 
 fn from_bot(m: &Message) -> bool {
