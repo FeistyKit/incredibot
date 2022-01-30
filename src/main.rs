@@ -2,6 +2,7 @@ use std::{env, fs::read_to_string, collections::HashMap};
 
 use fancy_regex::Regex;
 use serenity::{prelude::{RwLock, EventHandler}, async_trait, model::{channel::Message, gateway::Ready}, client::Context, Client, framework::StandardFramework};
+use tokio::time::Instant;
 
 type Ret<T> = Result<T, String>;
 type RwList<K, V> = RwLock<Vec<(K, V)>>;
@@ -87,10 +88,12 @@ impl EventHandler for Handler {
 }
 
 async fn say_resolved(src: &Message, ctx: &Context, to_send: &str) {
+    let t = Instant::now();
     // Stolen from https://github.com/serenity-rs/serenity/blob/7b89775858d92a1c8be05f213b92fbe72b083980/examples/e01_basic_ping_bot/src/main.rs#L24
     if let Err(why) = src.channel_id.say(&ctx.http, to_send).await {
         println!("Error sending message: {:?}", why);
     }
+    println!("{} millis elapsed", t.elapsed().as_millis());
 }
 
 fn from_bot(m: &Message) -> bool {
