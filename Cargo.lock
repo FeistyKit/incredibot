@@ -434,6 +434,7 @@ name = "incredibot"
 version = "0.1.0"
 dependencies = [
  "fancy-regex",
+ "lazy_static",
  "serde",
  "serde_json",
  "serenity",
