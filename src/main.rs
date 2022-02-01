@@ -73,6 +73,14 @@ impl EventHandler for Handler {
                 && msg.channel_id.0 != CHANNEL.channel_allowed
                 && CHANNEL.regex.is_match(&msg.content).unwrap()
             {
+                msg.author
+                    .dm(&ctx.http, |m| {
+                        m.content(format!(
+                            "Your message was deleted for not posting in the right channel!"
+                        ))
+                    })
+                    .await
+                    .unwrap();
                 msg.delete(&ctx.http).await.unwrap();
             }
             if let Some(input) = msg.content.strip_prefix(&*self.prefix.read().await) {
